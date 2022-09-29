@@ -1,4 +1,5 @@
-﻿using Transition;
+﻿using Inventory.Logic;
+using Transition;
 using UnityEngine;
 
 namespace Cursor
@@ -20,8 +21,12 @@ namespace Cursor
             {
                 case "Teleport":
                     var teleport = clickObject.GetComponent<Teleport>();
-                    teleport.TeleportToScene();
-                    break;       
+                    teleport?.TeleportToScene();
+                    break;
+                case "Item":
+                    var item = clickObject.GetComponent<Item>();
+                    item?.ItemClicked();
+                    break;
             }
         }
 
