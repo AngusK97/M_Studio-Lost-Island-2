@@ -3,16 +3,23 @@ using System.Collections;
 using Tools;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using EventHandler = Utilities.EventHandler;
 
 namespace Transition
 {
     public class TransitionManager : Singleton<TransitionManager>
     {
+        public string startScene;
         public CanvasGroup fadeCanvasGroup;
         public float fadeDuration;
         
         private bool isFade;
-        
+
+        private void Start()
+        {
+            StartCoroutine(TransitionToScene(String.Empty, startScene));
+        }
+
         public void Transition(string from, string to)
         {
             if (!isFade)
@@ -22,13 +29,18 @@ namespace Transition
         private IEnumerator TransitionToScene(string from, string to)
         {
             yield return Fade(1);
-            
-            yield return SceneManager.UnloadSceneAsync(from);
-            yield return SceneManager.LoadSceneAsync(to, LoadSceneMode.Additive);
 
+            if (from != String.Empty)
+            {
+                EventHandler.CallBeforeSceneUnloadEvent();
+                yield return SceneManager.UnloadSceneAsync(from);
+            }
+            
+            yield return SceneManager.LoadSceneAsync(to, LoadSceneMode.Additive);
             Scene newScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
             SceneManager.SetActiveScene(newScene);
             
+            EventHandler.CallAfterSceneUnloadEvent();
             yield return Fade(0);
         }
 
